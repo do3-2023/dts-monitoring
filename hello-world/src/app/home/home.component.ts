@@ -11,9 +11,9 @@ export class HomeComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
-    // this.http.get<string>('http://localhost:3080')
-    // .subscribe(message => {
-    //   this.message = message;
-    // });
+    this.http.get('http://localhost:3000', {responseType: 'text'})
+    .subscribe(response => {
+      this.message = response;
+    });
   }
 }

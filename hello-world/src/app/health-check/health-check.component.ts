@@ -13,11 +13,11 @@ export class HealthCheckComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.response) {
-      this.http.get<string>('localhost:3000')
-      .subscribe(
-        message => this.response.status(200),
-        err => this.response.status(500)
-      )
+      this.http.get('http://localhost:3000/healthz', {responseType: 'text'})
+      .subscribe({
+        next: (mess) => this.response.status(200),
+        error: (err) => this.response.status(500),
+      })
     }
   }
 }

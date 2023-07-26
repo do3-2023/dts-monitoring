@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  namespace: front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: web
+    spec:
+      containers:
+        - image: ghcr.io/do3-2023/dts-kube-front:v1.0
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 80
+              name: web
+              protocol: TCP
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: api
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: api
+    spec:
+      containers:
+        - env:
+            - name: "POSTGRES_DB"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_DB
+            - name: "POSTGRES_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_USER
+            - name: "POSTGRES_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_PASSWORD
+          image: ghcr.io/do3-2023/dts-kube-api:v1.0
+          imagePullPolicy: IfNotPresent
+          name: api
+          ports:
+            - containerPort: 3000
+              name: api
+              protocol: TCP
+      imagePullSecrets:
+        - name: regcred
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: db
+    spec:
+      containers:
+        - env:
+            - name: "POSTGRES_DB"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_DB
+            - name: "POSTGRES_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_USER
+            - name: "POSTGRES_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_PASSWORD
+          image: postgres:latest
+          imagePullPolicy: IfNotPresent
+          name: db
+          ports:
+            - name: db
+              containerPort: 5432
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /var/lib/postgresql
+              name: db-data
+      volumes:
+        - name: db-data
+          persistentVolumeClaim:
+            claimName: pvc-database-local

@@ -24,7 +24,7 @@ spec:
       nodePort: 31000
       port: 80
       protocol: TCP
-      targetPort: 80
+      targetPort: 4000 
   selector:
     name: web
   type: NodePort

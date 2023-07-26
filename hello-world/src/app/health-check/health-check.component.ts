@@ -9,11 +9,15 @@ import { Response } from 'express'
   styleUrls: ['./health-check.component.css']
 })
 export class HealthCheckComponent implements OnInit {
-  constructor(private http: HttpClient, @Optional() @Inject(RESPONSE) private response: Response) {}
+  constructor(
+    private http: HttpClient,
+    @Optional() @Inject(RESPONSE) private response: Response,
+    @Inject('SERVER_CONFIG') private serverConfig: any
+  ) {}
 
   ngOnInit(): void {
     if (this.response) {
-      this.http.get('http://localhost:3000/healthz', {responseType: 'text'})
+      this.http.get('http://' + this.serverConfig.API_URL + ':3000/healthz', {responseType: 'text'})
       .subscribe({
         next: (mess) => this.response.status(200),
         error: (err) => this.response.status(500),

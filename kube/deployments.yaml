@@ -19,13 +19,22 @@ spec:
         name: web
     spec:
       containers:
-        - image: ghcr.io/do3-2023/dts-kube-front:v1.0
-          imagePullPolicy: IfNotPresent
+        - env:
+          - name: "API_URL"
+            value: 'api.back'
+          image: ghcr.io/do3-2023/dts-kube-front:v1.0
+          imagePullPolicy: Always
           name: web
           ports:
-            - containerPort: 80
+            - containerPort: 4000
               name: web
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: web
+            initialDelaySeconds: 3
+            periodSeconds: 3
       imagePullSecrets:
         - name: regcred
 ---
@@ -51,6 +60,10 @@ spec:
     spec:
       containers:
         - env:
+            - name: "DB_HOST"
+              value: "db.data"
+            - name: "DB_PORT"
+              value: "5432"  
             - name: "POSTGRES_DB"
               valueFrom:
                 secretKeyRef:
@@ -73,6 +86,12 @@ spec:
             - containerPort: 3000
               name: api
               protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: api
+            initialDelaySeconds: 3
+            periodSeconds: 3
       imagePullSecrets:
         - name: regcred
 ---
@@ -120,6 +139,16 @@ spec:
             - name: db
               containerPort: 5432
               protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: db
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            tcpSocket:
+              port: db
+            initialDelaySeconds: 5
+            periodSeconds: 10
           volumeMounts:
             - mountPath: /var/lib/postgresql
               name: db-data

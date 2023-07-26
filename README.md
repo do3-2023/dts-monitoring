@@ -1,14 +1,116 @@
-# dts-kube
+# Deploying an application in Kubernetes
 
-To log in to package registry:
+**Dziyana Tsetserava - DO3**
+
+## Project structure
+
+### Frontend
+
+The project's frontend is made with Angular Universal which allows Angular to render applications on server. It has two routes:
+
+- "`/`": the root route displays a message received from the API, which is initially stored in the database.
+
+- "`/healthz`": the health route serves to verify the liveliness of the application, it sends a request to the API's corresponding `/healthz` route and returns Internal Server Error if something goes wrong.
+
+### API
+
+The project's backend is made with NestJS framework. It offers the same routes as the frontend, both for HTTP GET requests:
+
+- "`/`": the root route queries a database for a message to send to the frontend.
+
+- "`/healthz`": the health route sends a request to the database and returns Internal Server Error if something goes wrong.
+
+### Database
+
+I am using a PostgreSQL database for this project. It has just one table `hello` with only two attributes: `id` and `message`.
+
+## Kubernetes commands to deploy the project
+
+1. Create a cluster with one server node:
+```
+sudo k3d cluster create dts-kube-cluster
+```
+
+2. Create three namespaces for the frontend, api and database pods respectively:
+
+- Command line:
+```
+sudo kubectl create ns front
+sudo kubectl create ns back
+sudo kubectl create ns data
+```
+- YAML file
+```
+sudo kubectl apply -f namespaces.yaml
+```
+
+3. Login to docker registry:
 
 ```
-echo MY_PERSONAL_ACCESS_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
+echo PERSONAL_ACCESS_TOKEN | sudo docker login ghcr.io -u USERNAME --password-stdin
 ```
 
-To create docker images go to a corresponding folder and run one of the following commands:
+4. Create secrets in `front` and `back` namespaces to allow Kubernetes access private Docker repository to pull container images:
 
 ```
-docker build -t ghcr.io/do3-2023/dts-kube-api:v1.0 .
-docker build -t ghcr.io/do3-2023/dts-kube-front:v1.0 .
+sudo kubectl create secret generic regcred --from-file=.dockerconfigjson=/home/username/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=back
+
+sudo kubectl create secret generic regcred --from-file=.dockerconfigjson=/home/username/.docker/config.json --type=kubernetes.io/dockerconfigjson --namespace=front
 ```
+
+The file *.docker/config.json* was created automatically in your home folder after `docker login`. The newly created secrets' names should be provided to deployments via `imagePullSecrets` property (see *deployment.yaml* for an example).
+
+The above secrets can be created with a YAML file, but I prefer not to disclose sensitive access data.
+
+5. Create secrets for database environment variables in two namespaces:
+
+- Command line:
+```
+sudo kubectl create secret generic db -n back --from-literal=POSTGRES_DB=dts-kube --from-literal=POSTGRES_PASSWORD=dts-kube --from-literal=POSTGRES_USER=dts-kube
+
+sudo kubectl create secret generic db -n data --from-literal=POSTGRES_DB=dts-kube --from-literal=POSTGRES_PASSWORD=dts-kube --from-literal=POSTGRES_USER=dts-kube
+```
+- YAML file:
+```
+sudo kubectl apply -f secrets.yaml
+```
+
+6. Create persistence volume and persistence volume claim:
+
+```
+sudo kubectl apply -f persistencevolume.yaml
+
+sudo kubectl apply -f persistencevolumeclaim.yaml
+```
+
+7. Create deployments:
+
+```
+sudo kubectl apply -f deployments.yaml
+```
+
+8. Create services:
+
+```
+sudo kubectl apply -f services.yaml
+```
+
+9. Check if the project is running:
+
+Verify that all your pods have a Running status:
+```
+sudo kubectl get pods -A
+```
+
+To check the details of each pod:
+```
+sudo kubectl describe pod <pod-name> -n <namespace>
+```
+
+Find your cluster IP:
+
+```
+sudo kubectl get nodes -o wide
+```
+
+Navigate to http://<Internal_IP>:<NodePort_Port> (In our case, node port is set to 31000)

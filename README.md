@@ -20,7 +20,7 @@ The project's frontend is made with Angular Universal which allows Angular to re
 
 The project's backend is made with NestJS framework. It offers the same routes as the frontend, both for HTTP GET requests:
 
-- "`/`": the root route inserts a "Hello World" message in the database and then queries a database for a message (the same "Hello World") to send to the frontend. It's completely useless, but allows to check that database connection works.
+- "`/`": the root route inserts a "Hello World" message in the database and then queries a database for a message (the same "Hello World") to send to the frontend. It also adds the total number of extracted table rows to its reply. It's completely useless, but allows to check that database connection works.
 
 - "`/healthz`": the health route sends a request to the database and returns Internal Server Error if something goes wrong.
 

@@ -19,7 +19,10 @@ spec:
         name: web
     spec:
       containers:
-        - image: ghcr.io/do3-2023/dts-kube-front:v1.1
+        - env:
+          - name: "API_HOST"
+            value: "api.back"
+          image: ghcr.io/do3-2023/dts-kube-front:v1.2
           imagePullPolicy: IfNotPresent
           name: web
           ports:
@@ -76,7 +79,7 @@ spec:
                 secretKeyRef:
                   name: db
                   key: POSTGRES_PASSWORD
-          image: ghcr.io/do3-2023/dts-kube-api:v1.1
+          image: ghcr.io/do3-2023/dts-kube-api:v1.2
           imagePullPolicy: IfNotPresent
           name: api
           ports:
@@ -148,8 +151,8 @@ spec:
             periodSeconds: 10
           volumeMounts:
             - mountPath: /var/lib/postgresql
-              name: db-data
+              name: pv-database
       volumes:
-        - name: db-data
+        - name: pv-database
           persistentVolumeClaim:
             claimName: pvc-database-local

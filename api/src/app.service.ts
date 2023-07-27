@@ -17,6 +17,6 @@ export class AppService {
     if (hello.length === 0) {
       throw new BadRequestException("Couldn't get a message");
     }
-    return hello[0].message;
+    return hello[0].message + ' This message was stored right now in the database. Total number of messages: ' + hello.length;
   }
 }

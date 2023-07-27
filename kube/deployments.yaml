@@ -19,11 +19,8 @@ spec:
         name: web
     spec:
       containers:
-        - env:
-          - name: "API_URL"
-            value: 'api.back'
-          image: ghcr.io/do3-2023/dts-kube-front:v1.0
-          imagePullPolicy: Always
+        - image: ghcr.io/do3-2023/dts-kube-front:v1.1
+          imagePullPolicy: IfNotPresent
           name: web
           ports:
             - containerPort: 4000
@@ -79,7 +76,7 @@ spec:
                 secretKeyRef:
                   name: db
                   key: POSTGRES_PASSWORD
-          image: ghcr.io/do3-2023/dts-kube-api:v1.0
+          image: ghcr.io/do3-2023/dts-kube-api:v1.1
           imagePullPolicy: IfNotPresent
           name: api
           ports:

@@ -10,6 +10,9 @@ export class AppService {
   ) {}
 
   async getHello(): Promise<string> {
+    // Insert message in the db
+    await this.helloRepository.save({message: "Hello World!"});
+    // Get message from the db
     const hello = await this.helloRepository.find();
     if (hello.length === 0) {
       throw new BadRequestException("Couldn't get a message");

@@ -6,6 +6,8 @@
 
 ### Frontend
 
+**Note:** The frontend code can be found in the *hello-world* folder.
+
 The project's frontend is made with Angular Universal which allows Angular to render applications on server. It has two routes:
 
 - "`/`": the root route displays a message received from the API, which is initially stored in the database.
@@ -14,9 +16,11 @@ The project's frontend is made with Angular Universal which allows Angular to re
 
 ### API
 
+**Note:** The backend code can be found in the *api* folder.
+
 The project's backend is made with NestJS framework. It offers the same routes as the frontend, both for HTTP GET requests:
 
-- "`/`": the root route queries a database for a message to send to the frontend.
+- "`/`": the root route inserts a "Hello World" message in the database and then queries a database for a message (the same "Hello World") to send to the frontend. It's completely useless, but allows to check that database connection works.
 
 - "`/healthz`": the health route sends a request to the database and returns Internal Server Error if something goes wrong.
 
@@ -25,6 +29,8 @@ The project's backend is made with NestJS framework. It offers the same routes a
 I am using a PostgreSQL database for this project. It has just one table `hello` with only two attributes: `id` and `message`.
 
 ## Kubernetes commands to deploy the project
+
+**Note:** Move to the *kube* folder and execute commands from there.
 
 1. Create a cluster with one server node:
 ```
@@ -97,7 +103,7 @@ sudo kubectl apply -f services.yaml
 
 9. Check if the project is running:
 
-Verify that all your pods have a Running status:
+Verify that all your three pods eventually get a Running status (it will take a while when deploying for the first time):
 ```
 sudo kubectl get pods -A
 ```

@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-home',
@@ -9,12 +9,11 @@ import { Component, Inject, OnInit } from '@angular/core';
 export class HomeComponent implements OnInit {
   message = "Loading..."
   constructor(
-    private http: HttpClient,
-    @Inject('SERVER_CONFIG') private serverConfig: any
+    private http: HttpClient
   ) {}
 
   ngOnInit() {
-    this.http.get('http://' + this.serverConfig.API_URL + ':3000', {responseType: 'text'})
+    this.http.get('http://api.back.svc.cluster.local:3000', {responseType: 'text'})
     .subscribe(response => {
       this.message = response;
     });

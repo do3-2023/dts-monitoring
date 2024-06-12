@@ -17,7 +17,7 @@ export class HealthCheckComponent implements OnInit {
 
   ngOnInit(): void {
     if (this.response) {
-      this.http.get('http://' + this.serverConfig.API_HOST + ':3000/healthz', {responseType: 'json'})
+      this.http.get('http://' + this.serverConfig.API_HOST + ':3000/healthz', {responseType: 'text'})
       .subscribe({
         next: (mess) => this.response.status(200),
         error: (err) => this.response.status(500),

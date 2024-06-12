@@ -5,7 +5,7 @@ import { HealthzController } from './healthz/healthz.controller';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { DataSource } from 'typeorm';
-import { Hello } from './database/hello.entity';
+import { Person } from './database/person.entity';
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -13,8 +13,8 @@ import { Hello } from './database/hello.entity';
   providers: [
     AppService,
     {
-      provide: 'HELLO_REPOSITORY',
-      useFactory: (dataSource: DataSource) => dataSource.getRepository(Hello),
+      provide: 'PERSON_REPOSITORY',
+      useFactory: (dataSource: DataSource) => dataSource.getRepository(Person),
       inject: ['DATA_SOURCE']
     }
   ],

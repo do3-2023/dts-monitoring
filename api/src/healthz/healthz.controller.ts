@@ -1,18 +1,18 @@
 import { Controller, Get, Inject, InternalServerErrorException } from '@nestjs/common';
-import { Hello } from 'src/database/hello.entity';
+import { Person } from 'src/database/person.entity';
 import { Repository } from 'typeorm';
 
 @Controller('healthz')
 export class HealthzController {
     constructor(
-        @Inject('HELLO_REPOSITORY')
-        private helloRepository: Repository<Hello>
+        @Inject('PERSON_REPOSITORY')
+        private personRepository: Repository<Person>
     ) {}
 
     @Get()
     async checkHealth(): Promise<string> {
         try {
-            await this.helloRepository.find();
+            await this.personRepository.find();
         }
         catch {
             throw new InternalServerErrorException('Error connecting to the database');

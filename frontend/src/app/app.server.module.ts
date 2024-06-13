@@ -11,8 +11,6 @@ import { serverConfig } from 'src/server-config';
     ServerModule,
   ],
   bootstrap: [AppComponent],
-  providers: [
-    { provide: 'SERVER_CONFIG', useValue: serverConfig }, // Provide the server config here
-  ],
+  providers: [],
 })
 export class AppServerModule {}

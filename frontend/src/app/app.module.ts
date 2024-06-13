@@ -7,6 +7,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HealthCheckComponent } from './health-check/health-check.component';
 import { HomeComponent } from './home/home.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 export function initializeApp(): () => Promise<any> {
   return () => Promise.resolve(serverConfig);
@@ -21,7 +22,8 @@ export function initializeApp(): () => Promise<any> {
   imports: [
     BrowserModule.withServerTransition({ appId: 'serverApp' }),
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule
   ],
   providers: [
     {
@@ -29,7 +31,8 @@ export function initializeApp(): () => Promise<any> {
       useFactory: initializeApp,
       multi: true,
     },
+    { provide: 'SERVER_CONFIG', useValue: serverConfig }
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

@@ -1,4 +1,5 @@
 <h1>You have the following people in your database:</h1>
+<h3>Reload to add a new row</h3>
 <table>
     <thead>
         <th>ID</th>
@@ -15,34 +16,4 @@
         </tr>
     </tbody>
 </table>
-
-<h3>Add a person:</h3>
-
-<form [formGroup]="simpleForm" (ngSubmit)="onSubmit()">
-    <div>
-      <label for="lastName">Last Name:</label>
-      <input id="lastName" type="text" formControlName="lastName">
-      <div *ngIf="simpleForm.get('lastName')?.invalid && simpleForm.get('lastName')?.touched">
-        Last name is required.
-      </div>
-    </div>
-  
-    <div>
-      <label for="phoneNumber">Phone Number:</label>
-      <input id="phoneNumber" type="text" formControlName="phoneNumber">
-      <div *ngIf="simpleForm.get('phoneNumber')?.invalid && simpleForm.get('phoneNumber')?.touched">
-        Valid phone number is required.
-      </div>
-    </div>
-  
-    <div>
-      <label for="location">Location:</label>
-      <input id="location" type="text" formControlName="location">
-      <div *ngIf="simpleForm.get('location')?.invalid && simpleForm.get('location')?.touched">
-        Location is required.
-      </div>
-    </div>
-  
-    <button type="submit" [disabled]="simpleForm.invalid">Submit</button>
-</form>
   

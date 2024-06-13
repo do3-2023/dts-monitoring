@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, Inject, OnInit } from '@angular/core';
 import { Person } from '../interfaces/person.interface';
-import { FormBuilder, Validators } from '@angular/forms';
+import { StateKey, TransferState, makeStateKey } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -9,41 +9,34 @@ import { FormBuilder, Validators } from '@angular/forms';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  people = Array<Person>()
+  people: Person[] = []
 
   constructor(
-    private fb: FormBuilder,
     private http: HttpClient,
-    @Inject('SERVER_CONFIG') private serverConfig: any
+    @Inject('SERVER_CONFIG') private serverConfig: any,
+    private tstate: TransferState
   ) {}
 
-  simpleForm = this.fb.group({
-    lastName: ['', Validators.required],
-    phoneNumber: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-    location: ['', Validators.required]
-  });
-
   ngOnInit() {
-    this.http.get<Array<Person>>('http://' + this.serverConfig.API_HOST + ':3000', {responseType: 'json'})
-    .subscribe(response => {
-      this.people = response
-    });
-  }
-
-  onSubmit() {
-    if (this.simpleForm.valid) {
+    const stateKey: StateKey<Person[]> = makeStateKey('people-list')
+    if (this.tstate.hasKey(stateKey)) {
+      this.people = this.tstate.get(stateKey, [])
+      this.tstate.remove(stateKey)
+    }
+    else {
       this.http.post<Person>('http://' + this.serverConfig.API_HOST + ':3000', {
-        last_name: this.simpleForm.value.lastName,
-        phone_number: this.simpleForm.value.phoneNumber,
-        location: this.simpleForm.value.location
-      },{responseType: 'json'})
+          last_name: 'Potter',
+          phone_number: '77777777',
+          location: 'London'
+        },{responseType: 'json'}).subscribe(response => {
+          this.people.push(response)
+          this.tstate.set(stateKey, this.people)
+        })
+      this.http.get<Array<Person>>('http://' + this.serverConfig.API_HOST + ':3000', {responseType: 'json'})
       .subscribe(response => {
-        this.people.push(response)
-        this.simpleForm.reset()
-
+        this.people = response
+        this.tstate.set(stateKey, this.people)
       });
-    } else {
-      console.log('Form is invalid');
     }
   }
 }

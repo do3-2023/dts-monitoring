@@ -22,7 +22,7 @@ spec:
         - env:
           - name: "API_HOST"
             value: "api.back"
-          image: ghcr.io/do3-2023/dts-kube-front:v1.2
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/frontend:v1.1
           imagePullPolicy: IfNotPresent
           name: web
           ports:
@@ -58,28 +58,29 @@ spec:
       labels:
         name: api
     spec:
+      initContainers:
+        - name: init-db
+          image: postgres:latest
+          command:
+            - sh
+            - -c
+            - |
+              psql postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} -f /etc/initscript/init.sql
+          envFrom:
+            - configMapRef:
+                name: db-connect
+            - secretRef:
+                name: db
+          volumeMounts:
+          - name: db-configmap
+            mountPath: /etc/initscript
       containers:
-        - env:
-            - name: "DB_HOST"
-              value: "db.data"
-            - name: "DB_PORT"
-              value: "5432"  
-            - name: "POSTGRES_DB"
-              valueFrom:
-                secretKeyRef:
-                  name: db
-                  key: POSTGRES_DB
-            - name: "POSTGRES_USER"
-              valueFrom:
-                secretKeyRef:
-                  name: db
-                  key: POSTGRES_USER
-            - name: "POSTGRES_PASSWORD"
-              valueFrom:
-                secretKeyRef:
-                  name: db
-                  key: POSTGRES_PASSWORD
-          image: ghcr.io/do3-2023/dts-kube-api:v1.2
+        - envFrom:
+            - configMapRef:
+                name: db-connect
+            - secretRef:
+                name: db
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api:v1.1
           imagePullPolicy: IfNotPresent
           name: api
           ports:
@@ -94,6 +95,10 @@ spec:
             periodSeconds: 3
       imagePullSecrets:
         - name: regcred
+      volumes:
+      - name: db-configmap
+        configMap:
+          name: db-config
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -117,6 +122,8 @@ spec:
     spec:
       containers:
         - env:
+            - name: "PGDATA"
+              value: /var/lib/postgresql/data/pgdata
             - name: "POSTGRES_DB"
               valueFrom:
                 secretKeyRef:
@@ -150,7 +157,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           volumeMounts:
-            - mountPath: /var/lib/postgresql
+            - mountPath: /var/lib/postgresql/data
               name: pv-database
       volumes:
         - name: pv-database

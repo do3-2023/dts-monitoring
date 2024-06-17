@@ -20,9 +20,9 @@ spec:
     spec:
       containers:
         - env:
-          - name: "API_HOST"
-            value: "api.back"
-          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/frontend:v1.2
+          - name: "API_URL"
+            value: "http://162.38.112.227:32000"
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/frontend:v1.4
           imagePullPolicy: IfNotPresent
           name: web
           ports:
@@ -80,7 +80,7 @@ spec:
                 name: db-connect
             - secretRef:
                 name: db
-          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api:v1.2
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api:v1.4
           imagePullPolicy: IfNotPresent
           name: api
           ports:

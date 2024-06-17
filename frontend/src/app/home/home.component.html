@@ -19,14 +19,6 @@
       </div>
     </div>
 
-    <div>
-      <label for="location">Location:</label>
-      <input id="location" type="text" formControlName="location">
-      <div *ngIf="simpleForm.get('location')?.invalid && simpleForm.get('location')?.touched">
-        Location is required.
-      </div>
-    </div>
-
     <button type="submit" [disabled]="simpleForm.invalid">Submit</button>
 </form>
 

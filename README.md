@@ -81,7 +81,18 @@ sudo kubectl create secret generic db -n data --from-literal=POSTGRES_DB=dts-kub
 sudo kubectl apply -f secrets.yaml
 ```
 
-6. Create persistence volume and persistence volume claim:
+6. Create config maps for database init script and environment variables:
+
+```
+kubectl apply -f configmaps.yaml
+```
+
+As you can see, the *configmaps.yaml* file contains the script to create a table and insert rows from the *database/init.sql* file. This is the command to use to transform a file into a config map:
+```
+kubectl create configmap db-config --from-file=./database/init.sql -n back --dry-run=client -o yaml > ./database/db-configmap.yaml
+```
+
+7. Create persistence volume and persistence volume claim:
 
 ```
 sudo kubectl apply -f persistencevolume.yaml
@@ -89,19 +100,19 @@ sudo kubectl apply -f persistencevolume.yaml
 sudo kubectl apply -f persistencevolumeclaim.yaml
 ```
 
-7. Create deployments:
+8. Create deployments:
 
 ```
 sudo kubectl apply -f deployments.yaml
 ```
 
-8. Create services:
+9. Create services:
 
 ```
 sudo kubectl apply -f services.yaml
 ```
 
-9. Check if the project is running:
+10. Check if the project is running:
 
 Verify that all your three pods eventually get a Running status (it will take a while when deploying for the first time):
 ```

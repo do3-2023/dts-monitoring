@@ -21,7 +21,7 @@ spec:
       containers:
         - env:
           - name: "API_URL"
-            value: "http://162.38.112.227:32000"
+            value: "http://162.38.112.92:32000"
           image: ghcr.io/do3-2023/do3-2023/dts-monitoring/frontend:v1.4
           imagePullPolicy: IfNotPresent
           name: web

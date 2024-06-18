@@ -35,6 +35,12 @@ spec:
               port: web
             initialDelaySeconds: 3
             periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: web
+            initialDelaySeconds: 3
+            periodSeconds: 3
       imagePullSecrets:
         - name: regcred
 ---
@@ -91,6 +97,12 @@ spec:
               name: api
               protocol: TCP
           livenessProbe:
+            httpGet:
+              path: /healthz
+              port: api
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
             httpGet:
               path: /healthz
               port: api

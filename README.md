@@ -102,14 +102,49 @@ sudo kubectl apply -f persistencevolumeclaim.yaml
 
 8. Create deployments:
 
+Provide the deployments manifest with the values for the following 3 variables: TARGET_ROLE ('blue' for the older stable version, 'green' for the new one to test), MONITORING_VERSION (container image tag to use, e.g. 'v1.4') and MONITORING_API_URL (publicly accessible URL of the API service).
+
+See an example of a command to create the deployments for the both 'blue' and 'green' versions of the app:
+
 ```
-sudo kubectl apply -f deployments.yaml
+TARGET_ROLE=blue MONITORING_VERSION=v1.4 MONITORING_API_URL=http://162.38.112.92:32000  envsubst '${TARGET_ROLE} ${MONITORING_VERSION} ${MONITORING_API_URL}' < kube/deployments.yaml | kubectl apply -f -
+
+TARGET_ROLE=green MONITORING_VERSION=v2.0 MONITORING_API_URL=http://162.38.112.92:32500  envsubst '${TARGET_ROLE} ${MONITORING_VERSION} ${MONITORING_API_URL}' < kube/deployments.yaml | kubectl apply -f -
 ```
+
+Notice that the port values in MONITORING_API_URL need to be provided in the next step to service manifests in order to expose the API on the port expected by the frontend.
 
 9. Create services:
 
+Use the following command to create services for stable frontend and API versions:
 ```
-sudo kubectl apply -f services.yaml
+TARGET_ROLE=blue API_PORT=32000 envsubst < kube/services.yaml | kubectl apply -f -
+```
+
+Also create test services for 'green' versions with the API_PORT corresponding to the port value we provided to the 'green' deployment in MONITORING_API_URL:
+
+```
+API_PORT=32500 envsubst < kube/test-services.yaml | kubectl apply -f -
+```
+
+To replace 'blue' production versions with 'green' while having zero downtime, delete test services and update main services with 'green' TARGET_ROLE and the API_PORT used by the test API service you deleted (since this port was already given to the frontend container in the variable MONITORING_API_URL):
+
+```
+kubectl delete -f kube/test-services.yaml
+
+TARGET_ROLE=green API_PORT=32500 envsubst < kube/services.yaml | kubectl apply -f -
+```
+
+Redeploy the 'blue' version to correspond to your newest stable version:
+
+```
+TARGET_ROLE=blue MONITORING_VERSION=v2.0 MONITORING_API_URL=http://162.38.112.92:32000  envsubst '${TARGET_ROLE} ${MONITORING_VERSION} ${MONITORING_API_URL}' < kube/deployments.yaml | kubectl apply -f -
+```
+
+Move services back to the renewed 'blue' version:
+
+```
+TARGET_ROLE=blue API_PORT=32000 envsubst < kube/services.yaml | kubectl apply -f -
 ```
 
 10. Check if the project is running:

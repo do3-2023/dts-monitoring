@@ -15,8 +15,8 @@ export class AppService {
     return people;
   }
 
-  async addPerson(last_name: string, phone_number: string, location: string): Promise<Person> {
+  async addPerson(last_name: string, phone_number: string): Promise<Person> {
     // Insert person in the db
-    return await this.personRepository.save({last_name, phone_number, location});
+    return await this.personRepository.save({last_name, phone_number});
   }
 }

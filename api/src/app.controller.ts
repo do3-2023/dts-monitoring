@@ -14,6 +14,6 @@ export class AppController {
 
   @Post()
   async addPerson(@Body() createPersonDto: CreatePersonDto): Promise<Person> {
-    return await this.appService.addPerson(createPersonDto.last_name, createPersonDto.phone_number, createPersonDto.location);
+    return await this.appService.addPerson(createPersonDto.last_name, createPersonDto.phone_number);
   }
 }

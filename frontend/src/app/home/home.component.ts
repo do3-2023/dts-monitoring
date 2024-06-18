@@ -16,7 +16,6 @@ export class HomeComponent implements OnInit {
   simpleForm = this.fb.group({
     lastName: ['', Validators.required],
     phoneNumber: ['', [Validators.required, Validators.pattern('^[0-9]+$')]],
-    location: ['', Validators.required]
   });
 
   constructor(
@@ -51,7 +50,6 @@ export class HomeComponent implements OnInit {
       this.http.post<Person>(this.apiUrl, {
         last_name: this.simpleForm.value.lastName,
         phone_number: this.simpleForm.value.phoneNumber,
-        location: this.simpleForm.value.location
       },{responseType: 'json'})
       .subscribe(response => {
         this.people.push(response)

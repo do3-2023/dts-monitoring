@@ -10,7 +10,4 @@ export class Person {
 
   @Column('text')
   phone_number: string;
-
-  @Column('text')
-  location: string;
 }

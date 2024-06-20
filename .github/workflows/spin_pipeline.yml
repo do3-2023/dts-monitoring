@@ -1,0 +1,35 @@
+name: Build and push Docker image
+on:
+  push:
+    tags:        
+      - wasm*
+  pull_request:
+    tags:        
+      - wasm*
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.10.0'
+      - name: Install spin
+        run: apt install -y spin
+      - name: Download packages
+        run: npm install
+      - name: Build wasm app
+        run: spin build
+      - name: Log in to the Container registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | spin registry login -u ${{ github.actor }} --password-stdin ghcr.io
+      - name: Push package to registry
+        run: spin registry push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}/api-wasm:${{ github.ref_name }}

@@ -25,6 +25,8 @@ jobs:
           node-version: '20.10.0'
       - name: Install spin
         run: apt install -y spin
+      - name: Move to the app folder
+        run: cd api-wasm
       - name: Download packages
         run: npm install
       - name: Build wasm app

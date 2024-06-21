@@ -1,0 +1,46 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-${TARGET_ROLE}
+  namespace: front
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: web-${TARGET_ROLE}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: web-${TARGET_ROLE}
+    spec:
+      containers:
+        - env:
+          - name: "API_URL"
+            value: ${MONITORING_API_URL}
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/frontend:${MONITORING_VERSION}
+          imagePullPolicy: IfNotPresent
+          name: web
+          ports:
+            - containerPort: 4000
+              name: web
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: web
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: web
+            initialDelaySeconds: 3
+            periodSeconds: 3
+      imagePullSecrets:
+        - name: regcred

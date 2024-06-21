@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: data
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: db
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: db
+    spec:
+      containers:
+        - env:
+            - name: "PGDATA"
+              value: /var/lib/postgresql/data/pgdata
+            - name: "POSTGRES_DB"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_DB
+            - name: "POSTGRES_USER"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_USER
+            - name: "POSTGRES_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: db
+                  key: POSTGRES_PASSWORD
+          image: postgres:latest
+          imagePullPolicy: IfNotPresent
+          name: db
+          ports:
+            - name: db
+              containerPort: 5432
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: db
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            tcpSocket:
+              port: db
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: pv-database
+      volumes:
+        - name: pv-database
+          persistentVolumeClaim:
+            claimName: pvc-database-local

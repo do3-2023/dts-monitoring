@@ -1,0 +1,30 @@
+spin_manifest_version = 2
+
+[application]
+authors = ["DziyanaT <dziyana.tsetserava@etu.umontpellier.fr>"]
+description = "TypeScript API made for WebAssembly"
+name = "api-wasm"
+version = "0.1.0"
+
+[variables]
+postgres_user = { required = true }
+postgres_password = { required = true }
+db_host = { required = true }
+db_port = { required = true }
+postgres_db = { required = true }
+
+[[trigger.http]]
+route = "/..."
+component = "api-wasm"
+
+[component.api-wasm]
+source = "target/api-wasm.wasm"
+exclude_files = ["**/node_modules"]
+allowed_outbound_hosts = ["postgres://{{ db_host }}:{{ db_port }}"]
+
+[component.api-wasm.variables]
+postgres_url = "host={{ db_host }} user={{ postgres_user }} password={{ postgres_password }} port={{ db_port }} dbname={{ postgres_db }}"
+
+[component.api-wasm.build]
+command = "npm run build"
+watch = ["src/**/*.ts", "package.json"]

@@ -5,7 +5,7 @@ metadata:
   namespace: back
 spec:
   replicas: 1
-  image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api-wasm:${MONITORING_VERSION}
+  image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api-wasm:wasm1.0
   executor: containerd-shim-spin
   checks:
     liveness:

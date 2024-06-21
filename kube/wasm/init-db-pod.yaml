@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-db
+  namespace: back
+spec:
+  containers:
+    - name: init-db
+      image: postgres:latest
+      command:
+        - sh
+        - -c
+        - |
+          echo Testing vars
+          echo ${POSTGRES_USER}
+          echo ${DB_HOST}
+          psql postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} -f /etc/initscript/init.sql
+      envFrom:
+        - configMapRef:
+            name: db-connect
+        - secretRef:
+            name: db
+      volumeMounts:
+        - name: db-configmap
+          mountPath: /etc/initscript
+  volumes:
+    - name: db-configmap
+      configMap:
+        name: db-config

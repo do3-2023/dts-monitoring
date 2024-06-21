@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-${TARGET_ROLE}
+  namespace: back
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: api-${TARGET_ROLE}
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: api-${TARGET_ROLE}
+    spec:
+      initContainers:
+        - name: init-db
+          image: postgres:latest
+          command:
+            - sh
+            - -c
+            - |
+              echo Testing vars
+              echo ${POSTGRES_USER}
+              echo ${DB_HOST}
+              psql postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:${DB_PORT}/${POSTGRES_DB} -f /etc/initscript/init.sql
+          envFrom:
+            - configMapRef:
+                name: db-connect
+            - secretRef:
+                name: db
+          volumeMounts:
+          - name: db-configmap
+            mountPath: /etc/initscript
+      containers:
+        - envFrom:
+            - configMapRef:
+                name: db-connect
+            - secretRef:
+                name: db
+          image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api:${MONITORING_VERSION}
+          imagePullPolicy: IfNotPresent
+          name: api
+          ports:
+            - containerPort: 3000
+              name: api
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: api
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: api
+            initialDelaySeconds: 3
+            periodSeconds: 3
+      imagePullSecrets:
+        - name: regcred
+      volumes:
+      - name: db-configmap
+        configMap:
+          name: db-config

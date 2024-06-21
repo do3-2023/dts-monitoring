@@ -1,0 +1,54 @@
+kind: SpinApp
+apiVersion: core.spinoperator.dev/v1alpha1
+metadata:
+  name: api-wasm
+  namespace: back
+spec:
+  replicas: 1
+  image: ghcr.io/do3-2023/do3-2023/dts-monitoring/api-wasm:${MONITORING_VERSION}
+  executor: containerd-shim-spin
+  checks:
+    liveness:
+      httpGet:
+        path: /healthz
+        httpHeaders: []
+      initialDelaySeconds: 3
+      periodSeconds: 3
+    readiness:
+      httpGet:
+        path: /healthz
+        httpHeaders: []
+      initialDelaySeconds: 3
+      periodSeconds: 3
+  variables:
+    - name: db_host
+      valueFrom:
+        configMapKeyRef:
+          name: db-connect
+          key: DB_HOST
+    - name: db_port
+      valueFrom:
+        configMapKeyRef:
+          name: db-connect
+          key: DB_PORT
+          optional: false
+    - name: postgres_db
+      valueFrom:
+        secretKeyRef:
+          name: db
+          key: POSTGRES_DB
+          optional: false
+    - name: postgres_password
+      valueFrom:
+        secretKeyRef:
+          name: db
+          key: POSTGRES_PASSWORD
+          optional: false
+    - name: postgres_user
+      valueFrom:
+        secretKeyRef:
+          name: db
+          key: POSTGRES_USER
+          optional: false
+  imagePullSecrets:
+    - name: regcred
